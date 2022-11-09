@@ -4,28 +4,21 @@ import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
 
 export default function ShareFileScreen({ route, navigation }) {
-  const { dataForFile } = route.params;
+  const { DB, eventInfo } = route.params;
 
-  const eventName = dataForFile.eventInfo.eventName;
-  const eventDate = dataForFile.eventInfo.date;
-  const attendance = dataForFile.attendance;
-  const classNSec = dataForFile.classNSec;
-
-  const createCSVFile = () => {
-    let csvData = "";
-    //Header
-    csvData += `Date,EventName,Full Name,Address\n`;
-    //names
-    for (let i in attendance) {
-      csvData += `${eventDate},${eventName},${attendance[i]},${classNSec[i]}\n`;
+  const createCSV = (data) => {
+    let CSVString = "";
+    for (let row of data) {
+      CSVString += row.join(",") + "\n";
     }
-    return csvData;
+    return CSVString;
   };
 
   const handleShare = () => {
-    const string = createCSVFile();
+    const eventName = eventInfo.eventName;
+    const string = createCSV(DB);
     const fileURI =
-      FileSystem.documentDirectory + eventName + "_Attendance.csv";
+      FileSystem.documentDirectory + eventName + "_Updated_Attendance.csv";
     FileSystem.writeAsStringAsync(fileURI, string);
     Sharing.isAvailableAsync().then(async () => {
       Sharing.shareAsync(fileURI);
