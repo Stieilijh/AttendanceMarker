@@ -17,12 +17,11 @@ export default function EventInfoScreen({ navigation, route }) {
       alert("Date is empty");
       return;
     }
-    const data = {
-      eventInfo: { eventName, date: dateString(date) },
+    navigation.navigate("BarcodeScreen", {
+      eventInfo: { eventName, eventDate: dateString(date) },
       DB,
       positions,
-    };
-    // navigation.navigate("BarcodeScreen", { data });
+    });
   };
   const showDatePicker = () => {
     setDatePickerVisibility(true);

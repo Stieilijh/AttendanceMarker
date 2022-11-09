@@ -34,8 +34,8 @@ export default function ConfigDBScreen({ navigation }) {
       .then(async (response) => {
         const resp = await response.text();
         const data = resp.split("\n");
-        for (let i of data) {
-          let j = i.split(",");
+        for (let i in data) {
+          let j = data[i].split(",");
           arrData.push(trimSpacesOfEachElement(j));
         }
         let nameInt, idInt, addressInt;

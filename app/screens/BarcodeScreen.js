@@ -26,8 +26,11 @@ export default function BarcodeScreen({ route, navigation }) {
   const [hasPermission, setHasPermission] = useState(null);
   const [text, setText] = useState("Not yet scanned");
   const [attendance, setAttendance] = useState([]);
-  const [classNSec, setClassNSec] = useState([]);
-  const eventData = route.params;
+  const { DB, eventInfo, positions } = route.params;
+  const idInt = positions.id;
+  const nameInt = positions.name;
+  const addressInt = positions.address;
+  const originalLength = DB[0].length;
   const askForCameraPermission = () => {
     (async () => {
       const { status } = await BarCodeScanner.requestPermissionsAsync();
@@ -42,30 +45,28 @@ export default function BarcodeScreen({ route, navigation }) {
 
   // What happens when we scan the bar code
   const handleBarCodeScanned = ({ type, data }) => {
-    return;
-    const index = IDARR.indexOf(data);
-    if (index == -1) return;
-    const name = NAMEARR[index];
-    if (name == null) {
+    for (let row of DB) {
+      if (parseInt(row[idInt]) !== parseInt(data)) {
+        //console.log(row[idInt] + " !== " + data);
+        continue;
+      }
+      if (attendance.includes(row)) {
+        // console.log("Already in attendance");
+        return;
+      }
+      const name = row[nameInt];
+      const address = row[addressInt];
+      playSound();
+      //set the text display
+      setText(name + "\n" + address);
+      //set local array attendance
+      const temp = attendance;
+      temp.push(row);
+      setAttendance(temp);
+      //pushing yes to the array
+      row.push("Yes");
       return;
     }
-    if (attendance.includes(name)) {
-      return;
-    }
-
-    //can't name it classNSec because that is one of our states
-    const classN = CLASSNSECARR[IDARR.indexOf(data)];
-    if (classN == null) {
-      classN = "NaN";
-    }
-    playSound();
-    setText(name + "\n" + classN);
-    const temp = attendance;
-    temp.push(name);
-    setAttendance(temp);
-    const temp1 = classNSec;
-    temp1.push(classN);
-    setClassNSec(temp1);
   };
 
   const handleStopScanning = () => {
@@ -74,9 +75,11 @@ export default function BarcodeScreen({ route, navigation }) {
       alert("0 attendance does not make sense!!");
       return;
     }
-    const eventInfo = eventData.data.eventInfo;
-    const dataForFile = { eventInfo, attendance, classNSec };
-    navigation.navigate("ShareFileScreen", { dataForFile });
+    DB[0].push(eventInfo.eventName);
+    for (let row of DB) {
+      if (row.length == originalLength) row.push("No");
+    }
+    navigation.navigate("ShareFileScreen", { DB, eventInfo });
   };
   // Check permissions and return the screens
   if (hasPermission === null) {
