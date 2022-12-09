@@ -13,12 +13,9 @@ export default function ShareFileScreen({ route, navigation }) {
     }
     return CSVString;
   };
-
   const handleShare = () => {
-    const eventName = eventInfo.eventName;
     const string = createCSV(DB);
-    const fileURI =
-      FileSystem.documentDirectory + eventName + "_Updated_Attendance.csv";
+    const fileURI = FileSystem.documentDirectory + "MESRac_Attendance.csv";
     FileSystem.writeAsStringAsync(fileURI, string);
     Sharing.isAvailableAsync().then(async () => {
       Sharing.shareAsync(fileURI);
